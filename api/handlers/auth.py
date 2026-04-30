@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
 from .base import BaseHandler
+from .encryption_defs import hash_pw, get_tokensalt
 
+tokensalt = get_tokensalt()
 class AuthHandler(BaseHandler):
 
     async def prepare(self):
@@ -19,11 +21,16 @@ class AuthHandler(BaseHandler):
             self.send_error(400, message='You must provide a token!')
             return
 
+        hashed_token = hash_pw(token,tokensalt)
         user = await self.db.users.find_one({
-            'token': token
+            'token': hashed_token
         }, {
             'email': 1,
+            'emailiv': 1,
             'displayName': 1,
+            'displayNameIV': 1,
+            'dob': 1,
+            'dobiv': 1,
             'expiresIn': 1
         })
 
@@ -40,5 +47,8 @@ class AuthHandler(BaseHandler):
 
         self.current_user = {
             'email': user['email'],
-            'display_name': user['displayName']
+            'emailiv': user['emailiv'],
+            'display_name': user['displayName'],
+            'displayNameIV': user['displayNameIV']
+            
         }
