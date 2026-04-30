@@ -1,6 +1,6 @@
 # `cyber-students`
 
-This is the modified version of the original to enclude encryption 
+This is the modified version of the original to include encryption 
 of the database fields. The API calls should be the same except for 
 the REGISTRATION call. Extra fields have been added as the assignment 
 required extra fields to be created.
