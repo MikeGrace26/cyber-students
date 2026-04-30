@@ -4,6 +4,15 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application
 
 from .base import BaseTest
+from .encryption_defs import hash_pw, encrypt_text, get_key, get_salt, get_emsalt
+import os
+
+salt = get_salt()
+salthex= salt.hex()
+key = get_key()
+em_key = get_emsalt()
+email_iv = os.urandom(12)
+email_iv_hex = email_iv.hex()
 
 from api.handlers.login import LoginHandler
 
@@ -16,8 +25,11 @@ class LoginHandlerTest(BaseTest):
 
     async def register(self):
         await self.get_app().db.users.insert_one({
-            'email': self.email,
-            'password': self.password,
+            'emailindex': hash_pw(self.email, em_key),
+            'email': encrypt_text(self.email, key, email_iv),
+            'emailiv': email_iv_hex,
+            'password': hash_pw(self.password,salt),
+            'passwordsalt': salthex,
             'displayName': 'testDisplayName'
         })
 
@@ -32,9 +44,8 @@ class LoginHandlerTest(BaseTest):
     def test_login(self):
         body = {
           'email': self.email,
-          'password': self.password
+          'password': self.password          
         }
-
         response = self.fetch('/login', method='POST', body=dumps(body))
         self.assertEqual(200, response.code)
 

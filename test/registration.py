@@ -8,6 +8,7 @@ from api.handlers.registration import RegistrationHandler
 from .base import BaseTest
 
 import urllib.parse
+import os
 
 class RegistrationHandlerTest(BaseTest):
 
@@ -23,7 +24,11 @@ class RegistrationHandlerTest(BaseTest):
         body = {
           'email': email,
           'password': 'testPassword',
-          'displayName': display_name
+          'displayName': display_name,
+          'address': 'Test Address',
+          'dob': '01042026',
+          'phonenumber': '010101010',
+          'disabilities': 'Hay Fever'
         }
 
         response = self.fetch('/registration', method='POST', body=dumps(body))
@@ -35,10 +40,14 @@ class RegistrationHandlerTest(BaseTest):
 
     def test_registration_without_display_name(self):
         email = 'test@test.com'
-
+        
         body = {
-          'email': email,
-          'password': 'testPassword'
+          'email': 'test@test.com',
+          'password': 'testPassword',
+          'address': 'Test Address',
+          'dob': '01042026',
+          'phonenumber': '010101010',
+          'disabilities': 'Hay Fever'
         }
 
         response = self.fetch('/registration', method='POST', body=dumps(body))
@@ -49,10 +58,17 @@ class RegistrationHandlerTest(BaseTest):
         self.assertEqual(email, body_2['displayName'])
 
     def test_registration_twice(self):
+        email = 'test@test.com'
+        display_name = 'testDisplayName'
+
         body = {
           'email': 'test@test.com',
           'password': 'testPassword',
-          'displayName': 'testDisplayName'
+          'displayName': 'testDisplayName',
+          'address': 'Test Address',
+          'dob': '01042026',
+          'phonenumber': '010101010',
+          'disabilities': 'Hay Fever'
         }
 
         response = self.fetch('/registration', method='POST', body=dumps(body))

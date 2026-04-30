@@ -7,6 +7,18 @@ from tornado.web import Application
 from api.handlers.user import UserHandler
 
 from .base import BaseTest
+import os
+
+from .encryption_defs import encrypt_text, hash_pw, get_key, get_tokensalt, get_salt, get_emsalt
+tokensalt = get_tokensalt()
+key = get_key()
+salt = get_salt()
+salthex= salt.hex()
+em_key = get_emsalt()
+email_iv = os.urandom(12)
+email_iv_hex = email_iv.hex()
+display_iv = os.urandom(12)
+display_iv_Hex = display_iv.hex()
 
 class UserHandlerTest(BaseTest):
 
@@ -17,16 +29,22 @@ class UserHandlerTest(BaseTest):
 
     async def register(self):
         await self.get_app().db.users.insert_one({
-            'email': self.email,
-            'password': self.password,
-            'displayName': self.display_name
+            'emailindex': hash_pw(self.email, em_key),
+            'email': encrypt_text(self.email, key, email_iv),
+            'emailiv': email_iv_hex,
+            'password': hash_pw(self.password,salt),
+            'passwordsalt': salthex,
+            'displayName': encrypt_text(self.display_name, key, display_iv),
+            'displayNameIV': display_iv.hex()
         })
 
     async def login(self):
+        hashed_token = hash_pw(self.token, tokensalt)
+        
         await self.get_app().db.users.update_one({
-            'email': self.email
+            'emailindex': hash_pw(self.email, em_key)
         }, {
-            '$set': { 'token': self.token, 'expiresIn': 2147483647 }
+            '$set': { 'token': hashed_token, 'expiresIn': 2147483647 }
         })
 
     def setUp(self):
@@ -34,8 +52,8 @@ class UserHandlerTest(BaseTest):
 
         self.email = 'test@test.com'
         self.password = 'testPassword'
-        self.display_name = 'testDisplayName'
         self.token = 'testToken'
+        self.display_name ='testDisplayName'
 
         IOLoop.current().run_sync(self.register)
         IOLoop.current().run_sync(self.login)
