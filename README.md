@@ -1,5 +1,13 @@
 # `cyber-students`
 
+This is the modified version of the original to enclude encryption 
+of the database fields. The API calls should be the same except for 
+the REGISTRATION call. Extra fields have been added as the assignment 
+required extra fields to be created.
+The modified API example has been updated in the text below.
+[MG 30/04/26]
+
+
 This repository provides some sample code for the Shared Project for
 Modern Cryptography and Security Management & Compliance.  The project
 requires git, Python 3, and MongoDB.  The following sections briefly
@@ -110,7 +118,7 @@ browser.  Instead we will use `curl` to interact with the server.
 To register a new user:
 
 ```sh
-curl -X POST http://localhost:4000/students/api/registration -d "{\"email\": \"foo@bar.com\", \"password\": \"pass\", \"displayName\": \"Foo Bar\"}"
+curl -X POST http://localhost:4000/students/api/registration -d "{\"email\": \"foo@bar.com\", \"password\": \"pass\", \"displayName\": \"Foo Bar\", \"address\": \"Foo Address\", \"dob\": \"01042026\", \"phonenumber\": \"015551111\", \"disabilities\": \"Left-handedness\"}"
 ```
 
 If the registration is successful, it will confirm the email address
